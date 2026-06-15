@@ -9,7 +9,7 @@ namespace Laboratory_Schedule.Models
     {
         public int Id { get; set; }
 
-        [Range(1, 10, ErrorMessage = "InvalidNationalResidenceId.")]
+        //[Range(1, 10, ErrorMessage = "InvalidNationalResidenceId.")]
 
         public int NationalResidenceId { get; set; }
 

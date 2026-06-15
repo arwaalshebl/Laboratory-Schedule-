@@ -20,9 +20,20 @@ builder.Services.AddLocalization(opt => { opt.ResourcesPath = "Resource"; });
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString, sqlServerOptionsAction: sqlOptions =>
+    {
+        // 🔥 هذا التعديل يمنع حدوث خطأ Transient Failure ويعيد المحاولة تلقائياً
+        sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,                         // محاولة الاتصال 5 مرات كحد أقصى عند الفشل
+            maxRetryDelay: TimeSpan.FromSeconds(30),   // فترة الانتظار القصوى بين المحاولات
+            errorNumbersToAdd: null
+        );
+    }));
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddRoles<IdentityRole>()
@@ -38,6 +49,7 @@ builder.Services.AddControllersWithViews().AddViewLocalization()
             return factory.Create("a", assemblyName.Name);
         };
     });
+
 builder.Services.AddRazorPages();
 builder.Services.Configure<RequestLocalizationOptions>(
     options =>
@@ -115,26 +127,26 @@ using (var scope = app.Services.CreateScope())
 
 
 
-    var adminUser = await userManager.FindByEmailAsync("renad@gmail.com");
+    var adminUser = await userManager.FindByEmailAsync("arwaAdmin@gmail.com");
     if (adminUser == null)
     {
         var user = new IdentityUser
         {
-            UserName = "renad@gmail.com",
-            Email = "renad@gmail.com",
+            UserName = "arwaAdmin@gmail.com",
+            Email = "arwaAdmin@gmail.com",
         };
 
         await userManager.CreateAsync(user, "A-123456a");
         await userManager.AddToRoleAsync(user, "Admin");
     }
 
-    var recepUser = await userManager.FindByEmailAsync("omar@gmail.com");
+    var recepUser = await userManager.FindByEmailAsync("Arwa@gmail.com");
     if (recepUser == null)
     {
         var user = new IdentityUser
         {
-            UserName = "omar@gmail.com",
-            Email = "omar@gmail.com",
+            UserName = "Arwa@gmail.com",
+            Email = "Arwa@gmail.com",
         };
         await userManager.CreateAsync(user, "A-123456a");
         await userManager.AddToRoleAsync(user, "Recep");

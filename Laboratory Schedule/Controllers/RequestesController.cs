@@ -189,6 +189,27 @@ namespace Laboratory_Schedule.Controllers
             return View(request);
         }
         [HttpGet]
+        public IActionResult AddCollage()
+        {
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken] 
+        public async Task<IActionResult> AddCollage(Collages collages)
+        {
+            if (!ModelState.IsValid || string.IsNullOrWhiteSpace(collages.Name))
+            {
+                return View(collages); 
+            }
+
+            _context.Collages.Add(collages);
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
         public async Task<FileResult> ExportRequestsExal()
         {
             var request = await _context.Request.ToListAsync();
@@ -198,6 +219,8 @@ namespace Laboratory_Schedule.Controllers
 
 
         }
+
+        
         private FileResult GenerateExal(string fileName, IEnumerable<Request> request)
         {
             DataTable dataTable = new DataTable("Request");
